@@ -5,6 +5,14 @@
 #include <algorithm>
 using namespace std;
 
+class item
+{
+public:
+    int v, w, num;
+    item(int a, int b, int c) : v(a), w(b), num(c) {}
+};
+
+
 vector <string> list_files(string dir)
 {
     vector <string> result;
@@ -13,28 +21,50 @@ vector <string> list_files(string dir)
     return result;
 }
 
-pair <int, int> split(string data)
+item split(string data, int num)
 {
     auto pos = data.find(" ");
-    return make_pair(stoi(data.substr(0, pos)),
-                     stoi(data.substr(pos + 1)));
+    return item(stoi(data.substr(0, pos)), stoi(data.substr(pos + 1)), num);
 }
 
 int main()
 {
     vector <string> data = list_files("data");
     string buf;
-    pair <int, int> portion;
+    int counter = 0;
+    ofstream fout;
+    fout.open("result.txt");
     for (string x : data)
     {
+        vector <item> items;
         ifstream file("/data/" + x);         
         getline(file, buf);
-        vector <pair <int, int>> items;
-        double capacity = split(buf).second;
+        item start_data = split(buf, 0);
+        double capacity = start_data.w;
+        vector <short int> result(start_data.v, 0);
         while (getline(file, buf))
-            items.push_back(split(buf));
-        sort(items.begin(), items.end(), [](pair <int, int> a, pair <int, int> b)
-            {return (double)a.second / a.first > (double)b.second / b.first; });
-
+        {
+            items.push_back(split(buf, counter));
+            ++counter;
+        }            
+        file.close();
+        sort(items.begin(), items.end(), [](item a, item b)
+            {return ((double)a.v / a.w > (double)b.v / b.w) or (((double)a.v / a.w == (double)b.v / b.w) and (a.w <= b.w)); });
+        int weight = 0;
+        int cost = 0;
+        for (auto obj : items)
+            if (weight >= capacity) break;
+            else
+            {
+                weight += obj.w;
+                cost += obj.v;
+                result[obj.num] = 1;
+            }        
+        fout << x << ": " << endl;
+        fout << cost << " " << capacity - weight << endl;
+        for (auto obj : result)
+            fout << obj << " ";
+        fout << endl;        
     }
+    fout.close();
 }
