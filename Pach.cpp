@@ -7,9 +7,9 @@ using namespace std;
 
 class item
 {
-public:
-    int v, w, num;
-    item(int a, int b, int c) : v(a), w(b), num(c) {}
+    public:
+        int v, w, num;
+        item(int a, int b, int c) : v(a), w(b), num(c) {}
 };
 
 
@@ -23,7 +23,6 @@ vector <string> list_files(string dir)
 
 item split(string data, int num, string file_debug = "")
 {
-    if (data == "") return item(0, 0, num);
     auto pos = data.find(" ");
     int transp;
     if (data.find("  ") != string::npos) transp = 2;
@@ -34,8 +33,7 @@ item split(string data, int num, string file_debug = "")
 int main()
 {
     vector <string> data = list_files("data");
-    string buf;
-    
+    string buf;    
     ofstream fout;
     fout.open("result.txt");
     for (string x : data)
@@ -49,6 +47,7 @@ int main()
         vector <short int> result(start_data.v, 0);
         while (getline(file, buf))
         {            
+            if (buf == "") continue;
             auto bufer = split(buf, counter, x);
             ++counter;
             if (bufer.w * bufer.v == 0) continue;
