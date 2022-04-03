@@ -21,45 +21,53 @@ vector <string> list_files(string dir)
     return result;
 }
 
-item split(string data, int num)
+item split(string data, int num, string file_debug = "")
 {
+    if (data == "") return item(0, 0, num);
     auto pos = data.find(" ");
-    return item(stoi(data.substr(0, pos)), stoi(data.substr(pos + 1)), num);
+    int transp;
+    if (data.find("  ") != string::npos) transp = 2;
+    else transp = 1;
+    return item(stoi(data.substr(0, pos)), stoi(data.substr(pos + transp)), num);
 }
 
 int main()
 {
     vector <string> data = list_files("data");
     string buf;
-    int counter = 0;
+    
     ofstream fout;
     fout.open("result.txt");
     for (string x : data)
     {
+        int counter = 0;
         vector <item> items;
-        ifstream file("/data/" + x);         
+        ifstream file("data/" + x);         
         getline(file, buf);
-        item start_data = split(buf, 0);
+        item start_data = split(buf, 0, x);
         double capacity = start_data.w;
         vector <short int> result(start_data.v, 0);
         while (getline(file, buf))
-        {
-            items.push_back(split(buf, counter));
+        {            
+            auto bufer = split(buf, counter, x);
             ++counter;
+            if (bufer.w * bufer.v == 0) continue;
+            items.push_back(bufer);            
         }            
         file.close();
         sort(items.begin(), items.end(), [](item a, item b)
-            {return ((double)a.v / a.w > (double)b.v / b.w) or (((double)a.v / a.w == (double)b.v / b.w) and (a.w <= b.w)); });
+            {return ((double)a.v / a.w > (double)b.v / b.w) or (((double)a.v / a.w == (double)b.v / b.w) and (a.w < b.w)); });
         int weight = 0;
         int cost = 0;
-        for (auto obj : items)
+        for (const auto obj : items)
             if (weight >= capacity) break;
             else
-            {
-                weight += obj.w;
-                cost += obj.v;
-                result[obj.num] = 1;
-            }        
+                if (obj.w <= capacity - weight)
+                    {
+                        weight += obj.w;
+                        cost += obj.v;
+                        result[obj.num] = 1;
+                    }        
         fout << x << ": " << endl;
         fout << cost << " " << capacity - weight << endl;
         for (auto obj : result)
