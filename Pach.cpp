@@ -67,11 +67,11 @@ int main()
                         cost += obj.v;
                         result[obj.num] = 1;
                     }        
-        fout << x << ": " << endl;
-        fout << cost << " " << capacity - weight << endl;
-        for (auto obj : result)
-            fout << obj << " ";
-        fout << endl;        
+        fout << x << ":" << cost;
+        //fout << cost << " " << capacity - weight << endl;
+        //for (auto obj : result)
+        //    fout << obj << " ";
+        //fout << endl;        
     }
     fout.close();
 }
